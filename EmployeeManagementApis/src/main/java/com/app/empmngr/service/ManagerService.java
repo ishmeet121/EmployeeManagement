@@ -24,12 +24,12 @@ public class ManagerService {
 	EmployeeRepository empRepository;
 
 	public ManagerEntity getManagerInfo(ManagerEntity manager) throws UserNotAuthorized {
-		Optional<ManagerEntity> mngInfo = mngRepository.authenticateByEmailPassword(manager.getEmail(), manager.getPassword());
+		Optional<ManagerEntity> mngInfo = mngRepository.authenticateByEmailPassword(manager.getEmail(),
+				manager.getPassword());
 
 		if (mngInfo.isPresent()) {
-			ManagerEntity mng=mngInfo.get();
-			mng.setPassword("***");
-			return mng;
+
+			return mngInfo.get();
 		} else {
 			throw new UserNotAuthorized("Invalid username or password");
 		}
@@ -48,7 +48,7 @@ public class ManagerService {
 	public List<EmployeeEntity> getEmployeesByMngId(Long id) throws RecordNotFoundException {
 		List<EmployeeEntity> employee = mngRepository.getEmployeesByMngId(id);
 
-		if (employee.size() > 0) {
+		if (employee.size() > 0 && null != employee.get(0).getId()) {
 			return employee;
 		} else {
 			throw new RecordNotFoundException("No employee record exist for given id");
@@ -62,14 +62,14 @@ public class ManagerService {
 		}
 
 		if (null != employee && employee.isPresent()) {
-			throw new RecordAlreadyExistException("Employee already Exist");	
+			throw new RecordAlreadyExistException("Employee already Exist");
 		} else {
 			entity = empRepository.save(entity);
 
 			return entity;
 		}
 	}
-	
+
 	public EmployeeEntity updateEmployee(EmployeeEntity entity) throws RecordNotFoundException {
 		Optional<EmployeeEntity> employee = null;
 		if (null != entity.getId()) {
@@ -89,8 +89,6 @@ public class ManagerService {
 			throw new RecordNotFoundException("Employee does not exist");
 		}
 	}
-	
-	
 
 	public void deleteEmployeeById(Long id) throws RecordNotFoundException {
 		Optional<EmployeeEntity> employee = empRepository.findById(id);
