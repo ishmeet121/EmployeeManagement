@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.empmngr.exception.RecordAlreadyExistException;
 import com.app.empmngr.exception.RecordNotFoundException;
+import com.app.empmngr.exception.UserNotAuthorized;
 import com.app.empmngr.model.EmployeeEntity;
 import com.app.empmngr.model.ManagerEntity;
 import com.app.empmngr.service.ManagerService;
@@ -29,7 +31,7 @@ public class MainController {
 	ManagerService service;
 
 	@PostMapping("/auth")
-	public ResponseEntity<ManagerEntity> findManagerInfo(@RequestBody ManagerEntity manager) throws RecordNotFoundException {
+	public ResponseEntity<ManagerEntity> findManagerInfo(@RequestBody ManagerEntity manager) throws UserNotAuthorized {
 		ManagerEntity mngrInfo = service.getManagerInfo(manager);
 
 		return new ResponseEntity<ManagerEntity>(mngrInfo, new HttpHeaders(), HttpStatus.OK);
@@ -39,7 +41,7 @@ public class MainController {
 	public ResponseEntity<ManagerEntity> registerManager(@RequestBody ManagerEntity manager) throws RecordAlreadyExistException {
 		ManagerEntity mngrInfo = service.registerManager(manager);
 
-		return new ResponseEntity<ManagerEntity>(mngrInfo, new HttpHeaders(), HttpStatus.OK);
+		return new ResponseEntity<ManagerEntity>(mngrInfo, new HttpHeaders(), HttpStatus.CREATED);
 	}
 
 	@GetMapping("/getemp/{id}")
@@ -50,10 +52,17 @@ public class MainController {
 		return new ResponseEntity<List<EmployeeEntity>>(entity, new HttpHeaders(), HttpStatus.OK);
 	}
 
-	@PostMapping("/updemp")
-	public ResponseEntity<EmployeeEntity> createOrUpdateEmployee(@RequestBody EmployeeEntity employee)
+	@PostMapping("/newemp")
+	public ResponseEntity<EmployeeEntity> createEmployee(@RequestBody EmployeeEntity employee)
+			throws  RecordAlreadyExistException {
+		EmployeeEntity created = service.createEmployee(employee);
+		return new ResponseEntity<EmployeeEntity>(created, new HttpHeaders(), HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/updemp")
+	public ResponseEntity<EmployeeEntity> UpdateEmployee(@RequestBody EmployeeEntity employee)
 			throws RecordNotFoundException {
-		EmployeeEntity updated = service.createOrUpdateEmployee(employee);
+		EmployeeEntity updated = service.updateEmployee(employee);
 		return new ResponseEntity<EmployeeEntity>(updated, new HttpHeaders(), HttpStatus.OK);
 	}
 

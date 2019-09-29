@@ -11,8 +11,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 @Table(name = "MANAGERS")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ManagerEntity {
 
 	private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Long id;
@@ -77,7 +82,8 @@ public class ManagerEntity {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
+	
+	
 	public List<EmployeeEntity> getEmployees() {
 		return employees;
 	}
@@ -85,7 +91,9 @@ public class ManagerEntity {
 	public void setEmployees(List<EmployeeEntity> employees) {
 		this.employees = employees;
 	}
-
+	
+	@JsonIgnore
+	@JsonProperty(value = "password")
 	public String getPassword() {
 		return password;
 	}

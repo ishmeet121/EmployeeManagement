@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.app.empmngr.exception.RecordAlreadyExistException;
 import com.app.empmngr.exception.RecordNotFoundException;
+import com.app.empmngr.exception.UserNotAuthorized;
 import com.app.empmngr.model.EmployeeEntity;
 import com.app.empmngr.model.ManagerEntity;
 import com.app.empmngr.repository.EmployeeRepository;
@@ -22,13 +23,15 @@ public class ManagerService {
 	@Autowired
 	EmployeeRepository empRepository;
 
-	public ManagerEntity getManagerInfo(ManagerEntity manager) throws RecordNotFoundException {
-		Optional<ManagerEntity> mngInfo = mngRepository.findByEmailPassword(manager.getEmail(), manager.getPassword());
+	public ManagerEntity getManagerInfo(ManagerEntity manager) throws UserNotAuthorized {
+		Optional<ManagerEntity> mngInfo = mngRepository.authenticateByEmailPassword(manager.getEmail(), manager.getPassword());
 
 		if (mngInfo.isPresent()) {
-			return mngInfo.get();
+			ManagerEntity mng=mngInfo.get();
+			mng.setPassword("***");
+			return mng;
 		} else {
-			throw new RecordNotFoundException("No manager record exist for given id");
+			throw new UserNotAuthorized("Invalid username or password");
 		}
 	}
 
@@ -52,7 +55,22 @@ public class ManagerService {
 		}
 	}
 
-	public EmployeeEntity createOrUpdateEmployee(EmployeeEntity entity) throws RecordNotFoundException {
+	public EmployeeEntity createEmployee(EmployeeEntity entity) throws RecordAlreadyExistException {
+		Optional<EmployeeEntity> employee = null;
+		if (null != entity.getId()) {
+			employee = empRepository.findById(entity.getId());
+		}
+
+		if (null != employee && employee.isPresent()) {
+			throw new RecordAlreadyExistException("Employee already Exist");	
+		} else {
+			entity = empRepository.save(entity);
+
+			return entity;
+		}
+	}
+	
+	public EmployeeEntity updateEmployee(EmployeeEntity entity) throws RecordNotFoundException {
 		Optional<EmployeeEntity> employee = null;
 		if (null != entity.getId()) {
 			employee = empRepository.findById(entity.getId());
@@ -68,11 +86,11 @@ public class ManagerService {
 
 			return newEntity;
 		} else {
-			entity = empRepository.save(entity);
-
-			return entity;
+			throw new RecordNotFoundException("Employee does not exist");
 		}
 	}
+	
+	
 
 	public void deleteEmployeeById(Long id) throws RecordNotFoundException {
 		Optional<EmployeeEntity> employee = empRepository.findById(id);

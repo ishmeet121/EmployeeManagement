@@ -17,7 +17,7 @@ public interface ManagerRepository extends JpaRepository<ManagerEntity, Long> {
 	List<EmployeeEntity> getEmployeesByMngId(@Param("id") Long id);
 
 	@Query("select new ManagerEntity(mng.id, mng.firstname, mng.lastname, mng.email) from ManagerEntity mng where mng.email=?1 and mng.password=?2")
-	Optional<ManagerEntity> findByEmailPassword(@Param("email") String email, @Param("password") String password);
+	Optional<ManagerEntity> authenticateByEmailPassword(@Param("email") String email, @Param("password") String password);
 
 	@Query("select mng.id from ManagerEntity mng where mng.email=?1")
 	Optional<Integer> findByEmail(@Param("email") String email);
